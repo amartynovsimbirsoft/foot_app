@@ -14,22 +14,27 @@ export default function Matches() {
     });
     return await res.json();
   }
-
-  useEffect(() => {
+  const populateCompetitions = () => {
     getData().then((data) => {
-      setCompetitions(data);
+      setCompetitions(data.competitions);
     });
+  }
+  useEffect(() => {
+    populateCompetitions()
   }, []);
 
   function onChangeDate(date){
+    if (!date)  { 
+      populateCompetitions();
+      return
+    }
     let fromFlag;
-      let filtered = competitions.competitions.filter(match => {
+      let filtered = competitions.filter(match => {
       fromFlag = true;
-      if (date) fromFlag = Date.parse(date) <= Date.parse(match.currentSeason.startDate);
+      if (date) fromFlag = Date.parse(date) <= Date.parse(match.currentSeason?.startDate);
       return fromFlag;
     })
-    competitions.competitions = [...filtered];
-    setCompetitions(competitions);
+    setCompetitions(filtered);
   }
 
   const columns = [
@@ -66,7 +71,8 @@ export default function Matches() {
     <main className={styles.main}>
         <h1>Страница матчей</h1>
         <DatePicker onChange={onChangeDate}></DatePicker>
-        <Table dataSource={competitions.competitions} columns={columns}></Table>
+        <Table dataSource={competitions} rowKey="id" columns={columns}></Table>
       </main>
   );
 }
+
